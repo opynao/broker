@@ -4,28 +4,31 @@
 
 #include <iostream>
 #include <vector>
+#include <set>
 
+template <typename Type>
 class Observer
 {
 public:
-    virtual void OnMessageReceived(const MessageType &msg) = 0;
-    virtual ~Observer() {}
+    virtual ~Observer() = default;
+    virtual void OnMessageReceived(const Type &) = 0;
 };
 
+template <typename Type>
 class Observable
 {
 public:
-    void Subscribe(std::shared_ptr<Observer> f)
+    void Subscribe(const std::shared_ptr<Observer<Type>> &observer)
     {
-        observers.push_back(f);
+        observers.insert(observer);
     }
-    void Unsubscribe(std::shared_ptr<Observer> f)
+    void Unsubscribe(const std::shared_ptr<Observer<Type>> &observer)
     {
-        // ...
+        observers.erase(observers.find(observer));
     }
 
 protected:
-    void Notify(const MessageType &msg)
+    void Notify(const Type &msg)
     {
         for (auto obs : observers)
             if (obs)
@@ -33,22 +36,5 @@ protected:
     }
 
 private:
-    std::vector<std::shared_ptr<Observer>> observers;
-};
-class Logger : public Observer
-{
-public:
-    virtual void OnMessageReceived(const MessageType &msg) override
-    {
-        std::cout << msg.GetMessageBody() << std::endl;
-    }
-};
-
-class GUI : public Observer
-{
-public:
-    virtual void OnMessageReceived(const MessageType &msg) override
-    {
-        std::cout << msg.GetMessageBody() << std::endl;
-    }
+    std::set<std::shared_ptr<Observer<Type>>> observers;
 };

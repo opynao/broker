@@ -11,6 +11,10 @@ struct MessageHead
     routingKey_t rKey;
     replyTo_t replyTo;
     static_assert(TODO, "MAKE MOVE CONSTRYCTOR");
+    friend bool operator==(const MessageHead &msgHeadFirst, const MessageHead &msgHeadSecond)
+    {
+        return msgHeadFirst.rKey == msgHeadSecond.rKey && msgHeadFirst.replyTo == msgHeadSecond.replyTo;
+    }
     // queueName_t queueName;
 };
 
@@ -31,6 +35,10 @@ public:
     MessageBodyType GetMessageBody() const
     {
         return m_messageBody;
+    }
+    friend bool operator==(const Message<MessageHeadType, MessageBodyType> &msgFirst, const Message<MessageHeadType, MessageBodyType> &msgSecond)
+    {
+        return msgFirst.m_messageHead == msgSecond.m_messageHead && msgFirst.m_messageBody == msgSecond.m_messageBody;
     }
 
 private:

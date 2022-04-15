@@ -8,7 +8,7 @@
 #include <semaphore>
 
 template <typename T>
-class ThreadsafeQueue : public Observable
+class ThreadsafeQueue : public Observable<MessageType>
 {
 public:
     ThreadsafeQueue(std::string name)

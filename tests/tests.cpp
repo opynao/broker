@@ -1,16 +1,16 @@
+#include "message.h"
+#include "message_broker.h"
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "message.h"
+TEST(SingleMessageConsumerSingleMessageProducer, MsgReachesConsumer)
+{
+    auto broker = MessageBroker::GetInstance();
 
-// class MessageFactoryMock : public ConnectionFactory
-// {
-// public:
-//     MOCK_METHOD((std::unique_ptr<Message>), CreateMessage, (std::string, ServiceFields), (const, override));
-// }
+    auto logger = std::make_shared<Logger>();
+    broker->QueueRegister("logger_queue", "logger.queue", logger);
 
-// TEST_F(MessageFactoryMock, Message)
-// {
-//     MessageFactoryMock factory;
-     
-// }
+    auto msg1 = MessageFactoryType::CreateMessage({"logger.queue", "gui.queue"}, "gui sends to logger");
+    broker->Publish(msg1); // gui sends to logger
+}

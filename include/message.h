@@ -14,7 +14,7 @@ struct MessageHead
     // queueName_t queueName;
 };
 
-using MessageBody = std::string;
+// using MessageBody = std::string;
 
 template <typename MessageHeadType, typename MessageBodyType>
 class Message
@@ -47,3 +47,6 @@ struct MessageFactory
         return MessageType(messageHead, messageBody);
     }
 };
+
+using MessageFactoryType = MessageFactory<MessageHead, std::string>;
+using MessageType = MessageFactoryType::MessageType;

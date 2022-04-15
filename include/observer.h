@@ -1,35 +1,15 @@
 #pragma once
 #include "message.h"
+#include "utils.h"
 
 #include <iostream>
 #include <vector>
-
-using MessageFactoryType = MessageFactory<MessageHead, std::string>;
-using MessageType = MessageFactoryType::MessageType;
 
 class Observer
 {
 public:
     virtual void OnMessageReceived(const MessageType &msg) = 0;
     virtual ~Observer() {}
-};
-
-class Logger : public Observer
-{
-public:
-    virtual void OnMessageReceived(const MessageType &msg) override
-    {
-        std::cout << msg.GetMessageBody() << std::endl;
-    }
-};
-
-class GUI : public Observer
-{
-public:
-    virtual void OnMessageReceived(const MessageType &msg) override
-    {
-        std::cout << msg.GetMessageBody() << std::endl;
-    }
 };
 
 class Observable
@@ -54,4 +34,21 @@ protected:
 
 private:
     std::vector<std::shared_ptr<Observer>> observers;
+};
+class Logger : public Observer
+{
+public:
+    virtual void OnMessageReceived(const MessageType &msg) override
+    {
+        std::cout << msg.GetMessageBody() << std::endl;
+    }
+};
+
+class GUI : public Observer
+{
+public:
+    virtual void OnMessageReceived(const MessageType &msg) override
+    {
+        std::cout << msg.GetMessageBody() << std::endl;
+    }
 };

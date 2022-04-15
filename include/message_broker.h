@@ -13,7 +13,7 @@
 class IMessageBroker
 {
 public:
-    virtual void QueueRegister(queueName_t, routingKey_t) = 0;
+    virtual void QueueRegister(queueName_t, routingKey_t, std::shared_ptr<Observer>) = 0;
     virtual void ObserverRegister(queueName_t, std::shared_ptr<Observer>) = 0;
     virtual void Publish(const MessageType &spMsg) = 0;
     virtual ~IMessageBroker() {}
@@ -22,11 +22,23 @@ public:
 class MessageBroker : public IMessageBroker
 {
 public:
-    virtual void QueueRegister(queueName_t queueName, routingKey_t rKey) override
+    MessageBroker(MessageBroker const &) = delete;
+    void operator=(MessageBroker const &) = delete;
+
+    static MessageBroker *GetInstance()
     {
-        auto queue = std::make_shared<Queue>(queueName);
+        if (!m_messageBroker)
+            return new MessageBroker();
+        return m_messageBroker;
+    }
+
+    virtual void QueueRegister(queueName_t queueName, routingKey_t rKey, std::shared_ptr<Observer> spQueueConsumer) override
+    {
+        auto queue = std::make_shared<ThreadsafeQueue<MessageType>>(queueName);
         queue_names.insert({queueName, queue});
         queue_rKey.insert({rKey, queue});
+        queue->Subscribe(spQueueConsumer);
+        //queues.insert({queueName, spObservable});
     }
     virtual void ObserverRegister(queueName_t queueName, std::shared_ptr<Observer> spObserver) override
     {
@@ -38,7 +50,7 @@ public:
         }
         else
         {
-            QueueRegister(queueName, "");
+            // QueueRegister(queueName, "");
             queue_names[queueName]->Subscribe(spObserver);
         }
     }
@@ -46,7 +58,9 @@ public:
     {
         auto it = queue_rKey.find(msg.GetMessageHead().rKey);
         if (it != queue_rKey.cend())
+        {
             queue_rKey[msg.GetMessageHead().rKey]->Push(msg);
+        }
         else
         {
             auto message = MessageFactoryType::CreateMessage({"logger.queue"}, "No queue with rKey " + msg.GetMessageHead().rKey);
@@ -54,7 +68,17 @@ public:
         }
     }
 
+    ~MessageBroker()
+    {
+        delete m_messageBroker;
+    }
+
 private:
-    std::unordered_map<queueName_t, std::shared_ptr<Queue>> queue_names;
-    std::unordered_map<routingKey_t, std::shared_ptr<Queue>> queue_rKey;
+    MessageBroker() {}
+    std::unordered_map<queueName_t, std::shared_ptr<ThreadsafeQueue<MessageType>>> queue_names;
+    std::unordered_map<routingKey_t, std::shared_ptr<ThreadsafeQueue<MessageType>>> queue_rKey;
+    std::unordered_map<queueName_t, std::shared_ptr<Observable>> queues;
+    static MessageBroker *m_messageBroker;
 };
+
+MessageBroker *MessageBroker::m_messageBroker{nullptr};

@@ -1,5 +1,6 @@
-#pragma once
-#include "observer.h"
+#ifndef __THREADSAFE_QUEUE_H__
+#define __THREADSAFE_QUEUE_H__
+#include "message_listener.h"
 
 #include <queue>
 #include <memory>
@@ -8,7 +9,7 @@
 #include <semaphore>
 
 template <typename T>
-class ThreadsafeQueue : public Observable<MessageType>
+class ThreadsafeQueue
 {
 public:
     ThreadsafeQueue(std::string name)
@@ -81,3 +82,5 @@ private:
     std::string queueName;
     std::condition_variable data_cond;
 };
+
+#endif

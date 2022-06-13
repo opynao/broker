@@ -1,16 +1,21 @@
-#pragma once
+#ifndef __PROFILE_H__
+#define __PROFILE_H__
 #include <chrono>
 
-template <class TimeT = std::chrono::seconds,
-          class ClockT = std::chrono::high_resolution_clock >
-          //steady clock
-struct profiler
+namespace Utils
 {
-    template <class F, class... Args>
-    static auto duration(F &&func, Args &&...args)
+    template <class TimeT = std::chrono::seconds,
+              class ClockT = std::chrono::high_resolution_clock>
+    // steady clock
+    struct profiler
     {
-        auto start = ClockT::now();
-        std::invoke(std::forward<F>(func), std::forward<Args>(args)...);
-        return std::chrono::duration_cast<TimeT>(ClockT::now() - start);
-    }
-};
+        template <class F, class... Args>
+        static auto duration(F &&func, Args &&...args)
+        {
+            auto start = ClockT::now();
+            std::invoke(std::forward<F>(func), std::forward<Args>(args)...);
+            return std::chrono::duration_cast<TimeT>(ClockT::now() - start);
+        }
+    };
+} // !Utils
+#endif

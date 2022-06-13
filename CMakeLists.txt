@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.18)
 
 get_filename_component(ProjectId ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" ProjectId ${ProjectId})
@@ -7,9 +7,9 @@ project(${ProjectId} VERSION 1.0 DESCRIPTION "Crossplatform fast copy utility" L
 #set(CMAKE_CXX_COMPILER clang++ )
 
 # set generator
-if(WIN32)
-	set(CMAKE_GENERATOR "Visual Studio 17 2022")
-endif()
+# if(WIN32)
+# 	set(CMAKE_GENERATOR "Visual Studio 17 2022")
+# endif()
 message(STATUS "Generator is set to ${CMAKE_GENERATOR}")
 
 # Disable in-source builds to prevent source tree corruption.
@@ -33,6 +33,7 @@ if (ENABLE_TESTS)
 endif()
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include
+                     ${CMAKE_CURRENT_SOURCE_DIR}/common/include
                      ${CMAKE_SOURCE_DIR}/spdlog/include )
 
 file(GLOB_RECURSE SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)

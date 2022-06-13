@@ -1,9 +1,11 @@
-#pragma once
+#ifndef __LOGGER_H__
+#define __LOGGER_H__
 #include "message.h"
-#include "observer.h"
+#include "message_listener.h"
 #include "utils.h"
 
-class Logger : public Observer<MessageType>
+using namespace Ensety::MessageBroker;
+class Logger : public IMessageListener<MessageType>
 {
 public:
     virtual void OnMessageReceived(const MessageType &msg) override
@@ -12,7 +14,7 @@ public:
     }
 };
 
-class GUI : public Observer<MessageType>
+class GUI : public IMessageListener<MessageType>
 {
 public:
     virtual void OnMessageReceived(const MessageType &msg) override
@@ -20,3 +22,5 @@ public:
         std::cout << msg.GetMessageBody() << std::endl;
     }
 };
+
+#endif

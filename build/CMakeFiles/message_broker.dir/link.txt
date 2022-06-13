@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/message_broker.dir/src/main.cpp.o CMakeFiles/message_broker.dir/src/message_broker.cpp.o CMakeFiles/message_broker.dir/src/message_publisher.cpp.o -o message_broker 

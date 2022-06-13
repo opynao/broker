@@ -1,2 +1,0 @@
-/usr/bin/ar qc libmessage_broker_lib.a CMakeFiles/message_broker_lib.dir/src/main.cpp.o CMakeFiles/message_broker_lib.dir/src/message_broker.cpp.o CMakeFiles/message_broker_lib.dir/src/message_publisher.cpp.o
-/usr/bin/ranlib libmessage_broker_lib.a

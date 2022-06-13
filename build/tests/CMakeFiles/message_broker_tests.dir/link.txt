@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/message_broker_tests.dir/tests.cpp.o -o message_broker_tests  ../lib/libgtest_main.a ../lib/libgmock_main.a ../libmessage_broker_lib.a ../lib/libgmock.a ../lib/libgtest.a -lpthread 

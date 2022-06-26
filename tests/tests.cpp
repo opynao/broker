@@ -6,11 +6,13 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
 
+#include <chrono>
 #include <string>
-
+#include <thread>
+#include <vector>
+#include <functional>
+#include <random>
 struct MockPingPonger : public IMessageListener<MessageType>
 {
     MockPingPonger(const MessageType &msgResponse)
@@ -139,17 +141,19 @@ TEST_F(MessageListenerTest, testRegisterQueue_QueueAlreadyExists)
     EXPECT_EQ(spMessageBroker->RegisterQueue({notExistQueueName, ""}), Ensety::ErrorCodes::MessageBroker_QueueAlreadyExists);
 }
 
-// TEST_F(MessageListenerTest, testUnbindMessageListener_OnMessageReceivedDoesntCall)
-// {
-//     auto spMockMessageListener = std::make_shared<MockMessageListener<MessageType>>();
-//     spMessageBroker->RegisterQueue(replyToQueue);
-//     spMessageBroker->BindQueueWithListener(serviceQueue, spMockMessageListener);
-//     spMessageBroker->UnBindListenerFromQueue(serviceQueue, spMockMessageListener);
-//     const auto msg = MessageFactoryType::CreateMessage({"", ""}, simpleMessage);
+TEST_F(MessageListenerTest, testUnbindMessageListener_OnMessageReceivedDoesntCall)
+{
+    auto spMockMessageListener = std::make_shared<MockMessageListener<MessageType>>();
+    QueueParams replyQueue{"REPLY_QUEUE", ""};
+    spMessageBroker->RegisterQueue(replyQueue);
 
-//     EXPECT_CALL(*spMockMessageListener, OnMessageReceived(msg)).Times(0);
-//     EXPECT_EQ(spMessageBroker->Publish(msg, serviceQueue), Ensety::ErrorCodes::Success);
-// }
+    spMessageBroker->BindQueueWithListener(replyQueue.queueName, spMockMessageListener);
+    spMessageBroker->UnbindListenerFromQueue(replyQueue.queueName, spMockMessageListener);
+    const auto msg = MessageFactoryType::CreateMessage({"", ""}, simpleMessage);
+
+    EXPECT_CALL(*spMockMessageListener, OnMessageReceived(msg)).Times(0);
+    EXPECT_EQ(spMessageBroker->Publish(msg, serviceQueue), Ensety::ErrorCodes::Success);
+}
 
 TEST_F(MessageListenerTest, testSendMessagesOnlyQueuesWithRoutingKeys)
 {

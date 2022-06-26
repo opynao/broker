@@ -13,6 +13,7 @@
 #include <vector>
 #include <functional>
 #include <random>
+#include <thread>
 struct MockPingPonger : public IMessageListener<MessageType>
 {
     MockPingPonger(const MessageType &msgResponse)
@@ -213,4 +214,39 @@ TEST(MessagePublisherTest, testPublish)
 
     messagePublisher.RemoveQueue(simpleQueueFirst.queueName);
     messagePublisher.Publish(msg);
+}
+
+TEST_F(MessageListenerTest, testPublishInSeveralThreads)
+{
+    const size_t threadCount(std::thread::hardware_concurrency());
+    const size_t messageListenersCount(std::thread::hardware_concurrency());
+    std::vector<std::thread> workers;
+    std::vector<std::shared_ptr<MockMessageListener<MessageType>>> messageListeners;
+
+    workers.reserve(threadCount);
+    messageListeners.reserve(messageListenersCount);
+
+    const auto msg = MessageFactoryType::CreateMessage({simpleRK, ""}, simpleMessage);
+
+    for (size_t i = 0; i != messageListenersCount; ++i)
+    {
+        QueueParams params{"QUEUE " + std::to_string(i), simpleRK};
+        auto spMockMessageListener = std::make_shared<MockMessageListener<MessageType>>();
+        spMessageBroker->RegisterQueue(params);
+        spMessageBroker->BindQueueWithListener(params.queueName, spMockMessageListener);
+
+        messageListeners.push_back(spMockMessageListener);
+    }
+
+    for (size_t i = 0; i != messageListenersCount; ++i)
+        EXPECT_CALL(*messageListeners[i], OnMessageReceived(msg)).Times(threadCount);
+
+    for (size_t i = 0; i != threadCount; ++i)
+    {
+        workers.push_back(std::thread([this, &msg]()
+                                      { EXPECT_EQ(spMessageBroker->Publish(msg), Ensety::ErrorCodes::Success); }));
+    }
+    
+    std::for_each(workers.begin(), workers.end(), [](std::thread &th)
+                  { th.join(); });
 }
